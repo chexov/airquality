@@ -26,7 +26,7 @@ float concentration = 0;
 int i=0;
 
 int DUST_SENSOR_DIGITAL_PIN_PM10 = 7;        // DSM501 Pin 2 of DSM501 (jaune / Yellow)
-int DUST_SENSOR_DIGITAL_PIN_PM25 = 8;        // DSM501 Pin 4 (rouge / red) 
+int DUST_SENSOR_DIGITAL_PIN_PM25 = 8;        // DSM501 Pin 4 (rouge / red)
 #define COUNTRY                       1         // 0. France, 1. Europe, 2. USA/China
 #define EXCELLENT                     "Excellent"
 #define GOOD                          "Good"
@@ -64,7 +64,7 @@ struct structAQI AQI;
 void updateAQILevel(){
   AQI.AQI = AQI.AqiPM10;
 }
- 
+
 void updateAQI() {
   // Actualise les mesures - update measurements
   AQI.endtime = millis();
@@ -73,18 +73,18 @@ void updateAQI() {
   if ( sampletime_ms < 3600000 ) { concentration = concentration * ( sampletime_ms / 3600000.0 ); }
   AQI.lowpulseoccupancyPM10 = 0;
   AQI.concentrationPM10 = concentration;
-  
+
   ratio = AQI.lowpulseoccupancyPM25 / (sampletime_ms * 10.0);
   concentration = 1.1 * pow( ratio, 3) - 3.8 *pow(ratio, 2) + 520 * ratio + 0.62;
   if ( sampletime_ms < 3600000 ) { concentration = concentration * ( sampletime_ms / 3600000.0 ); }
   AQI.lowpulseoccupancyPM25 = 0;
   AQI.concentrationPM25 = concentration;
- 
+
   Serial.print("Concentrations => PM2.5: "); Serial.print(AQI.concentrationPM25); Serial.print(" | PM10: "); Serial.println(AQI.concentrationPM10);
-  
+
   AQI.starttime = millis();
-      
-  // Actualise l'AQI de chaque capteur - update AQI for each sensor 
+
+  // Actualise l'AQI de chaque capteur - update AQI for each sensor
   if ( COUNTRY == 0 ) {
     // France
     AQI.AqiPM25 = getATMO( 0, AQI.concentrationPM25 );
@@ -98,15 +98,15 @@ void updateAQI() {
     AQI.AqiPM25 = getAQI( 0, AQI.concentrationPM25 );
     AQI.AqiPM10 = getAQI( 0, AQI.concentrationPM10 );
   }
- 
+
   // Actualise l'indice AQI - update AQI index
   updateAQILevel();
   updateAQIDisplay();
-  
+
   Serial.print("AQIs => PM25: "); Serial.print(AQI.AqiPM25); Serial.print(" | PM10: "); Serial.println(AQI.AqiPM10);
   Serial.print(" | AQI: "); Serial.println(AQI.AQI); Serial.print(" | Message: "); Serial.println(AQI.AqiString);
-  
- 
+
+
 }
 
 /*
@@ -116,7 +116,7 @@ void updateAQI() {
 int getATMO( int sensor, float density ){
   if ( sensor == 0 ) { //PM2,5
     if ( density <= 11 ) {
-      return 1; 
+      return 1;
     } else if ( density > 11 && density <= 24 ) {
       return 2;
     } else if ( density > 24 && density <= 36 ) {
@@ -138,7 +138,7 @@ int getATMO( int sensor, float density ){
     }
   } else {
     if ( density <= 6 ) {
-      return 1; 
+      return 1;
     } else if ( density > 6 && density <= 13 ) {
       return 2;
     } else if ( density > 13 && density <= 20 ) {
@@ -157,24 +157,24 @@ int getATMO( int sensor, float density ){
       return 9;
     } else {
       return 10;
-    }  
+    }
   }
 }
- 
+
 void updateAQIDisplay(){
   /*
-   * 1 EXCELLENT                    
-   * 2 GOOD                         
-   * 3 ACCEPTABLE               
-   * 4 MODERATE            
-   * 5 HEAVY               
+   * 1 EXCELLENT
+   * 2 GOOD
+   * 3 ACCEPTABLE
+   * 4 MODERATE
+   * 5 HEAVY
    * 6 SEVERE
    * 7 HAZARDOUS
    */
   if ( COUNTRY == 0 ) {
-    // Système ATMO français - French ATMO AQI system 
+    // Système ATMO français - French ATMO AQI system
     switch ( AQI.AQI) {
-      case 10: 
+      case 10:
         AQI.AqiString = SEVERE;
         break;
       case 9:
@@ -182,13 +182,13 @@ void updateAQIDisplay(){
         break;
       case 8:
         AQI.AqiString = HEAVY;
-        break;  
+        break;
       case 7:
         AQI.AqiString = MODERATE;
         break;
       case 6:
         AQI.AqiString = MODERATE;
-        break;   
+        break;
       case 5:
         AQI.AqiString = ACCEPTABLE;
         break;
@@ -203,12 +203,12 @@ void updateAQIDisplay(){
         break;
       case 1:
         AQI.AqiString = EXCELLENT;
-        break;           
+        break;
       }
   } else if ( COUNTRY == 1 ) {
     // European CAQI
     switch ( AQI.AQI) {
-      case 25: 
+      case 25:
         AQI.AqiString = GOOD;
         break;
       case 50:
@@ -219,10 +219,10 @@ void updateAQIDisplay(){
         break;
       case 100:
         AQI.AqiString = HEAVY;
-        break;         
+        break;
       default:
         AQI.AqiString = SEVERE;
-      }  
+      }
   } else if ( COUNTRY == 2 ) {
     // USA / CN
     if ( AQI.AQI <= 50 ) {
@@ -233,22 +233,22 @@ void updateAQIDisplay(){
         AQI.AqiString = MODERATE;
     } else if ( AQI.AQI > 150 && AQI.AQI <= 200 ) {
         AQI.AqiString = HEAVY;
-    } else if ( AQI.AQI > 200 && AQI.AQI <= 300 ) {  
+    } else if ( AQI.AQI > 200 && AQI.AQI <= 300 ) {
         AQI.AqiString = SEVERE;
-    } else {    
+    } else {
        AQI.AqiString = HAZARDOUS;
-    }  
+    }
   }
 }
 /*
- * CAQI Européen - European CAQI level 
+ * CAQI Européen - European CAQI level
  * source : http://www.airqualitynow.eu/about_indices_definition.php
  */
- 
-int getACQI( int sensor, float density ){  
+
+int getACQI( int sensor, float density ){
   if ( sensor == 0 ) {  //PM2,5
     if ( density == 0 ) {
-      return 0; 
+      return 0;
     } else if ( density <= 15 ) {
       return 25 ;
     } else if ( density > 15 && density <= 30 ) {
@@ -262,7 +262,7 @@ int getACQI( int sensor, float density ){
     }
   } else {              //PM10
     if ( density == 0 ) {
-      return 0; 
+      return 0;
     } else if ( density <= 25 ) {
       return 25 ;
     } else if ( density > 25 && density <= 50 ) {
@@ -276,7 +276,7 @@ int getACQI( int sensor, float density ){
     }
   }
 }
- 
+
 /*
  * AQI formula: https://en.wikipedia.org/wiki/Air_Quality_Index#United_States
  * Arduino code https://gist.github.com/nfjinjing/8d63012c18feea3ed04e
@@ -285,7 +285,7 @@ int getACQI( int sensor, float density ){
 float calcAQI(float I_high, float I_low, float C_high, float C_low, float C) {
   return (I_high - I_low) * (C - C_low) / (C_high - C_low) + I_low;
 }
- 
+
 int getAQI(int sensor, float density) {
   int d10 = (int)(density * 10);
   if ( sensor == 0 ) {
@@ -347,7 +347,7 @@ int getAQI(int sensor, float density) {
     else {
       return 1001;
     }
-  }   
+  }
 }
 // }}}
 
@@ -375,18 +375,18 @@ void setup() {
 //    Serial.println(" s (wait 60s for DSM501 to warm up)");
 //  }
 
-  
-  starttime = millis(); 
-  
+
+  starttime = millis();
+
   // call sensor.begin() to initialize the library
   sensor.begin();
 
 
-  
+
     // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 128x32)
   // init done
-  
+
   // Show image buffer on the display hardware.
   // Since the buffer is intialized with an Adafruit splashscreen
   // internally, this will display the splashscreen.
@@ -434,15 +434,15 @@ void loop() {
     Serial.print(sensor.getTemperature());
     Serial.print(" H: ");
     Serial.println(sensor.getHumidity());
-    
+
     display.print("T: ");
     display.print(sensor.getTemperature());
     display.println("C");
-  
+
     display.print("H: ");
     display.print(sensor.getHumidity());
     display.print("%");
-  
+
     if (tic > 5){
       display.print(".");
       tic = 0;
@@ -455,11 +455,11 @@ void loop() {
     switch (errorCode) {
       case 1: Serial.println("ERR: Sensor is offline"); break;
       case 2: Serial.println("ERR: CRC validation failed."); break;
-    }    
+    }
   }
 
-  
-} 
+
+}
 
 //delay(500);
 }
