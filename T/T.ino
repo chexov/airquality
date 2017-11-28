@@ -80,7 +80,6 @@ void updateAQI() {
   AQI.lowpulseoccupancyPM25 = 0;
   AQI.concentrationPM25 = concentration;
 
-  Serial.print("Concentrations => PM2.5: "); Serial.print(AQI.concentrationPM25); Serial.print(" | PM10: "); Serial.println(AQI.concentrationPM10);
 
   AQI.starttime = millis();
 
@@ -102,10 +101,6 @@ void updateAQI() {
   // Actualise l'indice AQI - update AQI index
   updateAQILevel();
   updateAQIDisplay();
-
-  Serial.print("AQIs => PM25: "); Serial.print(AQI.AqiPM25); Serial.print(" | PM10: "); Serial.println(AQI.AqiPM10);
-  Serial.print(" | AQI: "); Serial.println(AQI.AQI); Serial.print(" | Message: "); Serial.println(AQI.AqiString);
-
 
 }
 
@@ -396,32 +391,32 @@ void setup() {
 void loop() {
   endtime = millis();
 
+  AQI.lowpulseoccupancyPM10 += pulseIn(DUST_SENSOR_DIGITAL_PIN_PM10, LOW);
+  AQI.lowpulseoccupancyPM25 += pulseIn(DUST_SENSOR_DIGITAL_PIN_PM25, LOW);
+
   if ((endtime - starttime) > sampletime_ms) {
     display.clearDisplay();
     display.setCursor(0,0);
 
     updateAQI();
 
-        Serial.print("lowpulseoccupancyPM25:");
-    Serial.print(AQI.lowpulseoccupancyPM25);
-    Serial.print("lowpulseoccupancyPM10:");
-    Serial.print(AQI.lowpulseoccupancyPM10);
+    display.print(AQI.AqiString);
+    display.print(" PM2.5: ");
+    display.print(AQI.concentrationPM25);
+    display.println("");
+    
 
-
-    Serial.print("lowpulseoccupancyPM25:");
-    Serial.print(AQI.lowpulseoccupancyPM25);
-    Serial.print("lowpulseoccupancyPM10:");
-    Serial.print(AQI.lowpulseoccupancyPM10);
-
-//    Serial.print("    ratio:");
-//    Serial.print(ratio);
-//    Serial.print("    DSM501A:");
-//    Serial.println(concentration);
-
-    display.print("AQI: ");
-    display.print(AQI.AQI);
-    display.print(" ");
-    display.println(AQI.AqiString);
+    Serial.print("PM2.5: " );
+    Serial.print(AQI.concentrationPM25);
+    Serial.print(" | PM10: ");
+    Serial.print(AQI.concentrationPM10);
+    Serial.print(" ");
+    Serial.print(" | AQI: ");
+    Serial.print(AQI.AQI);
+    Serial.print(" ");
+    Serial.print(AQI.AqiString);
+    Serial.print(" ");
+    
 
     starttime = millis();
 
