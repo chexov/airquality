@@ -350,13 +350,9 @@ int getAQI(int sensor, float density) {
 void setup() {
   // enable serial communication
   Serial.begin(115200);
+  Serial.print("setup begin");
 
-  display.display();
-  display.clearDisplay();
-  display.clearDisplay();
-  display.setCursor(0,0);
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
+
 
 
   pinMode(DUST_SENSOR_DIGITAL_PIN_PM10,INPUT);
@@ -377,10 +373,16 @@ void setup() {
   sensor.begin();
 
 
-
+  
     // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 128x32)
   // init done
+  display.display();
+  display.clearDisplay();
+  display.clearDisplay();
+  display.setCursor(0,0);
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
 
   // Show image buffer on the display hardware.
   // Since the buffer is intialized with an Adafruit splashscreen
@@ -393,13 +395,14 @@ void loop() {
 
   AQI.lowpulseoccupancyPM10 += pulseIn(DUST_SENSOR_DIGITAL_PIN_PM10, LOW);
   AQI.lowpulseoccupancyPM25 += pulseIn(DUST_SENSOR_DIGITAL_PIN_PM25, LOW);
-
-  if ((endtime - starttime) > sampletime_ms) {
+  int delta = endtime - starttime; 
+  if ((delta) > sampletime_ms) {
     display.clearDisplay();
     display.setCursor(0,0);
 
     updateAQI();
 
+    Serial.print(delta); Serial.print(": ");
     display.print(AQI.AqiString);
     display.print(" PM2.5: ");
     display.print(AQI.concentrationPM25);
